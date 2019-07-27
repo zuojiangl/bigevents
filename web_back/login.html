@@ -66,10 +66,9 @@
                 // alert(1);
                 var name = $("#txtName").val();
                 var password = $("#txtPwd").val();
-                if (name === "" || password === "") {
-                    //提示一下
-                    $("#modalMsg").text("用户名密码不能为空!")
-                    $('#myModal').modal('show')
+                if (name === '' || password === '') {
+                    $('#modalMsg').text('用户名密码不能为空!');
+                    $('#myModal').modal('show');
                     return;
                 }
 
