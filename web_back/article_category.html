@@ -104,23 +104,13 @@
     </div>
     <script src="./js/template-web.js"></script>
     <script type="text/html" id="categoryTr">
-        <!-- {{each data item}}
-        <tr>
-            <td>{{item.name}}</td>
-            <td>{{item.slug}}</td>
-            <td class="text-center">
-                <a href="javascript:editTr({&quot;id&quot;:&quot;2&quot;,&quot;slug&quot;:&quot;funny&quot;,&quot;name&quot;:&quot;奇趣事&quot;});" class="btn btn-info btn-xs">编辑</a>
-                <a href="javascript:deleteTr( 2 );" class="btn btn-danger btn-xs">删除</a>
-            </td>
-        </tr>
-        {{/each}} -->
         {{each data item}}
         <tr>
             <td>{{item.name}}</td>
             <td>{{item.slug}}</td>
             <td class="text-center">
                 <a href="javascript:editTr({&quot;id&quot;:&quot;2&quot;,&quot;slug&quot;:&quot;funny&quot;,&quot;name&quot;:&quot;奇趣事&quot;});" class="btn btn-info btn-xs">编辑</a>
-                <a href="javascript:deleteTr( 2 );" class="btn btn-danger btn-xs">删除</a>
+                <a href="javascript:deleteTr( {{item.id}} );" class="btn btn-danger btn-xs">删除</a>
             </td>
         </tr>
         {{/each}}
@@ -149,27 +139,61 @@
         })
     </script>
     <script>
-        $("#tbody").empty();
-        $.getJSON('http://localhost:8000/admin/category_search', function(res) {
-            console.log(res);
-            if (res.code === 200) {
-                // var htmlString = template("categoryTr", res)
-                // $("#tbody").html(htmlString)
-                $("#tbody").html(template("categoryTr", res))
-                    // res.data.forEach(function(item) {
-                    //     var trStr = `<tr>
-                    //             <td>${item.name}</td>
-                    //             <td>${item.slug}</td>
-                    //             <td class="text-center">
-                    //                 <a href="javascript:editTr({&quot;id&quot;:&quot;2&quot;,&quot;slug&quot;:&quot;funny&quot;,&quot;name&quot;:&quot;奇趣事&quot;});"
-                    //                     class="btn btn-info btn-xs">编辑</a>
-                    //                 <a href="javascript:deleteTr(2);" class="btn btn-danger btn-xs">删除</a>
-                    //             </td>
-                    //         </tr>`;
-                    //     $("#tbody").append(trStr)
-                    // })
-            }
-        })
+        // $("#tbody").empty();
+        // $.getJSON('http://localhost:8000/admin/category_search', function(res) {
+        //     console.log(res);
+        //     if (res.code === 200) {
+        //         // var htmlString = template("categoryTr", res)
+        //         // $("#tbody").html(htmlString)
+        //         $("#tbody").html(template("categoryTr", res))
+        //             // res.data.forEach(function(item) {
+        //             //     var trStr = `<tr>
+        //             //             <td>${item.name}</td>
+        //             //             <td>${item.slug}</td>
+        //             //             <td class="text-center">
+        //             //                 <a href="javascript:editTr({&quot;id&quot;:&quot;2&quot;,&quot;slug&quot;:&quot;funny&quot;,&quot;name&quot;:&quot;奇趣事&quot;});"
+        //             //                     class="btn btn-info btn-xs">编辑</a>
+        //             //                 <a href="javascript:deleteTr(2);" class="btn btn-danger btn-xs">删除</a>
+        //             //             </td>
+        //             //         </tr>`;
+        //             //     $("#tbody").append(trStr)
+        //             // })
+        //     }
+        // })
+        function getAllCategory() {
+            $("#tbody").empty();
+            $.getJSON("http://localhost:8000/admin/category_search", function(res) {
+                console.log(res);
+                if (res.code === 200) {
+                    $("#tbody").html(template("categoryTr", res))
+                }
+            })
+        };
+        getAllCategory();
+
+        // function deleteTr(id) {
+        //     // 可以补一个删除提示
+        //     $.post("http://localhost:8000/admin/category_delete", {
+        //         id: id
+        //     }, function(res) {
+        //         console.log(res);
+        //         if (res.code === 200) {
+        //             // 删除成功
+        //             // 重新请求数据，更新表格
+        //             getAllCategory();
+        //         }
+        //     })
+        // }
+        function deleteTr(id) {
+            $.post('http://localhost:8000/admin/category_delete', {
+                id: id
+            }, function(res) {
+                console.log(res);
+                if (code === 200) {
+                    getAllCategory();
+                }
+            })
+        }
     </script>
 </body>
 
