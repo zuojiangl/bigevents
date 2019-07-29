@@ -109,7 +109,7 @@
             <td>{{item.name}}</td>
             <td>{{item.slug}}</td>
             <td class="text-center">
-                <a href="javascript:editTr({&quot;id&quot;:&quot;2&quot;,&quot;slug&quot;:&quot;funny&quot;,&quot;name&quot;:&quot;奇趣事&quot;});" class="btn btn-info btn-xs">编辑</a>
+                <a href="javascript:showEditDialog({{item}});" class="btn btn-info btn-xs">编辑</a>
                 <a href="javascript:deleteTr( {{item.id}} );" class="btn btn-danger btn-xs">删除</a>
             </td>
         </tr>
@@ -122,7 +122,7 @@
         });
 
         $('#model_shutoff').click(function() {
-            alert('shutoff');
+            // alert('shutoff');
             $('#addModal').modal('hide');
         });
 
@@ -131,7 +131,7 @@
         //     $('#addModal').modal('hide');
         // });
         //管理员-文章分类-新增功能
-        $('#model_add').click(function() {
+        function doAdd() {
             var name = $('#txtName').val().trim();
             var slug = $('#txtSlug').val().trim();
             $.post("http://localhost:8000/admin/category_add", {
@@ -141,14 +141,15 @@
                 console.log(res);
                 if (res.code === 200) {
                     $('#addModal').modal('hide');
+                    $("#errMsg").hide().text('');
                     $('#txtName').val('');
                     $('#txtSlug').val('');
                     getAllCategory();
                 } else {
-                    alert(res.msg)
+                    $("#errMsg").show().text(res.msg)
                 }
             })
-        })
+        };
         $('.category_table').delegate('a', 'click', function() {
             if ($(this).hasClass('btn-info')) {
                 $('#addModal .modal-title').html('修改分类名称');
@@ -157,27 +158,8 @@
         })
     </script>
     <script>
-        // $("#tbody").empty();
-        // $.getJSON('http://localhost:8000/admin/category_search', function(res) {
-        //     console.log(res);
-        //     if (res.code === 200) {
-        //         // var htmlString = template("categoryTr", res)
-        //         // $("#tbody").html(htmlString)
-        //         $("#tbody").html(template("categoryTr", res))
-        //             // res.data.forEach(function(item) {
-        //             //     var trStr = `<tr>
-        //             //             <td>${item.name}</td>
-        //             //             <td>${item.slug}</td>
-        //             //             <td class="text-center">
-        //             //                 <a href="javascript:editTr({&quot;id&quot;:&quot;2&quot;,&quot;slug&quot;:&quot;funny&quot;,&quot;name&quot;:&quot;奇趣事&quot;});"
-        //             //                     class="btn btn-info btn-xs">编辑</a>
-        //             //                 <a href="javascript:deleteTr(2);" class="btn btn-danger btn-xs">删除</a>
-        //             //             </td>
-        //             //         </tr>`;
-        //             //     $("#tbody").append(trStr)
-        //             // })
-        //     }
-        // })
+        var currentEditId = "";
+
         function getAllCategory() {
             $("#tbody").empty();
             $.getJSON("http://localhost:8000/admin/category_search", function(res) {
@@ -211,6 +193,53 @@
                     getAllCategory();
                 }
             })
+        }
+
+        function showEditDialog(obj) {
+            // alert('editTr')
+            console.log(obj)
+            currentEditId = obj.id;
+            $('#addModal .modal-title').html('修改分类名称');
+            $('#addModal #model_add').html('保存修改');
+            $('#txtName').val(obj.name);
+            $('#txtSlug').val(obj.slug);
+            $('#addModal').modal('show');
+        }
+        $('#model_add').click(function() {
+
+            if ($('#addModal #model_add').html() === '添加') {
+                //做添加
+                doAdd();
+            } else {
+                //做修改
+                doEdit();
+            }
+
+        });
+
+        function doEdit() {
+            // alert(currentEditId)
+            // 基本步骤 ：
+            // 1.获取用户的参数
+            var name = $("#txtName").val().trim();
+            var slug = $("#txtSlug").val().trim();
+            // 2.调用接口
+            $.post("http://localhost:8000/admin/category_edit", {
+                id: currentEditId,
+                name: name,
+                slug: slug,
+            }, function(res) {
+                console.log(res);
+                if (res.code === 200) {
+                    $('#addModal').modal('hide');
+                    getAllCategory();
+                    // 3.修改成功  
+                    // 3.1隐藏弹出框
+                    // 3.2重新请求数据
+                }
+            })
+
+
         }
     </script>
 </body>
