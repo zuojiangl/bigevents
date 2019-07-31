@@ -210,6 +210,7 @@
             $.get('http://localhost:8000/admin/search', {
                 id: id
             }, function(res) {
+                console.log(id)
                 console.log(res);
                 if (res.code === 200) {
                     $('.article_title').text(res.data.title);
