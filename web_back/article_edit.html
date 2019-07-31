@@ -15,6 +15,7 @@
     <script src="js/jedate/js/jedate.js"></script>
     <script src="js/tinymce/js/tinymce/tinymce.min.js"></script>
     <script src="js/tinymce/js/tinymce_setup.js"></script>
+    <script src="./js/template-web.js"></script>
 </head>
 
 <body>
@@ -23,24 +24,25 @@
             文章编辑
         </div>
         <div class="container-fluid common_con">
-            <form class="form-horizontal article_form">
+            <form class="form-horizontal article_form" id="myform">
+                <input type="hidden" name="id" id="article_id">
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章标题：</label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputEmail3" value="文章标题文字">
+                        <input type="email" class="form-control" name="title" id="title" value="文章标题文字">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputPassword3" class="col-sm-2 control-label">文章封面：</label>
                     <div class="col-sm-10">
-                        <img src="images/pic06.jpg" class="article_cover">
-                        <input type="file" id="exampleInputFile">
+                        <img id="cover" src="images/pic06.jpg" class="article_cover">
+                        <input type="file" name="cover" id="exampleInputFile">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章类别：</label>
                     <div class="col-sm-4">
-                        <select class="form-control">
+                        <select id="selCategory" name="type" class="form-control">
                             <option>类别一</option>
                             <option>类别二</option>
                             <option>类别三</option>
@@ -54,7 +56,7 @@
                     <div class="col-sm-4">
 
                         <div class="input-group">
-                            <input type="text" class="form-control" value="2019-05-17" id="dateinput">
+                            <input type="text" class="form-control" value="2019-05-17" id="dateinput" name="date">
                             <span class="input-group-btn">
                                 <button class="btn btn-default" type="button"
                                     onclick="jeDate('#dateinput',{trigger:false,format: 'YYYY-MM-DD'})"><i
@@ -71,13 +73,70 @@
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-success">修改</button>
+                        <button id="btnSave" type="button" class="btn btn-success">修改</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+    <script type="text/html" id="typeSearch">
+        <option value="">所有分类</option>
+        {{each data item}}
+        <option value="{{item.id}}">{{item.name}}</option>
+        {{/each}}
+    </script>
+    <script>
+        //拼接文章分类
+        function doQueryCategory() {
+            $.getJSON('http://localhost:8000/admin/category_search', function(res) {
+                $("#selCategory").html(template("typeSearch", res))
+            })
+            get()
+        }
+        doQueryCategory();
 
+        //获取信息
+        function get() {
+            var id = window.location.search.substr(4);
+            $('#article_id').val(id);
+            $.get('http://localhost:8000/admin/search', {
+                id: id
+            }, function(res) {
+                console.log(res);
+                if (res.code === 200) {
+                    $('#title').val(res.data.title);
+                    $('#dateinput').val(res.data.date);
+                    $('#cover').attr("src", res.data.cover);
+                    $('#rich_content').val(res.data.content);
+                    $('#selCategory').val(res.data.type);
+                }
+            })
+        }
+
+        //保存
+        function save() {
+            var fd = new FormData(document.getElementById('myform'));
+            //手动设置内容
+            fd.append("content", tinyMCE.activeEditor.getContent());
+            $.ajax({
+                url: 'http://localhost:8000/admin/article_edit',
+                type: 'post',
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function(res) {
+                    console.log(res);
+                    if (res.code === 200) {
+                        window.location.href = "./article_list.html"
+                    }
+                }
+            })
+        }
+        //点击保存
+        $('#btnSave').click(function() {
+            save();
+        })
+    </script>
 </body>
 
 </html>
